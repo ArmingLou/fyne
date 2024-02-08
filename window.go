@@ -70,6 +70,8 @@ type Window interface {
 	// Since: 1.4
 	SetCloseIntercept(func())
 
+	SetOnResize(func(Size))
+
 	// SetOnDropped allows setting a window-wide callback to receive dropped items.
 	// The callback function is called with the absolute position of the drop and a
 	// slice of all of the dropped URIs.

@@ -39,8 +39,9 @@ var _ fyne.Tabbable = (*Entry)(nil)
 // Entry widget allows simple text to be input when focused.
 type Entry struct {
 	DisableableWidget
-	shortcut fyne.ShortcutHandler
-	Text     string
+	HighLight bool
+	shortcut  fyne.ShortcutHandler
+	Text      string
 	// Since: 2.0
 	TextStyle   fyne.TextStyle
 	PlaceHolder string
@@ -77,7 +78,7 @@ type Entry struct {
 
 	// useful for Form validation (as the error text should only be shown when
 	// the entry is unfocused)
-	onFocusChanged func(bool)
+	OnFocusChanged func(bool) `json:"-"`
 
 	// selectRow and selectColumn represent the selection start location
 	// The selection will span from selectRow/Column to CursorRow/Column -- note that the cursor
@@ -304,8 +305,8 @@ func (e *Entry) FocusGained() {
 		e.dirty = true
 		e.focused = true
 	})
-	if e.onFocusChanged != nil {
-		e.onFocusChanged(true)
+	if e.OnFocusChanged != nil {
+		e.OnFocusChanged(true)
 	}
 }
 
@@ -317,8 +318,8 @@ func (e *Entry) FocusLost() {
 		e.focused = false
 		e.selectKeyDown = false
 	})
-	if e.onFocusChanged != nil {
-		e.onFocusChanged(false)
+	if e.OnFocusChanged != nil {
+		e.OnFocusChanged(false)
 	}
 }
 
@@ -1565,6 +1566,8 @@ func (r *entryRenderer) Refresh() {
 	} else {
 		if r.entry.Disabled() {
 			r.border.StrokeColor = theme.DisabledColor()
+		} else if r.entry.HighLight {
+			r.border.StrokeColor = theme.SuccessColor()
 		} else {
 			r.border.StrokeColor = theme.InputBorderColor()
 		}

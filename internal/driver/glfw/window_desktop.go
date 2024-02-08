@@ -100,6 +100,7 @@ type window struct {
 
 	onClosed           func()
 	onCloseIntercepted func()
+	onResize           func(fyne.Size)
 
 	menuTogglePending       fyne.KeyName
 	menuDeactivationPending fyne.KeyName
@@ -315,7 +316,10 @@ func (w *window) moved(_ *glfw.Window, x, y int) {
 }
 
 func (w *window) resized(_ *glfw.Window, width, height int) {
-	w.processResized(width, height)
+	canvasSize := w.processResized(width, height)
+	if w.onResize != nil {
+		w.onResize(canvasSize)
+	}
 }
 
 func (w *window) scaled(_ *glfw.Window, x float32, y float32) {

@@ -231,6 +231,14 @@ func (s *testSettings) Scale() float32 {
 	defer s.propertyLock.RUnlock()
 	return s.scale
 }
+func (s *testSettings) SetScale(scale float32) {
+	s.propertyLock.RLock()
+	defer s.propertyLock.RUnlock()
+	if scale < 0.0 {
+		scale = 1.0 // catching any really old data still using the `-1`  value for "auto" scale
+	}
+	s.scale = scale
+}
 
 func (s *testSettings) apply() {
 	s.propertyLock.RLock()

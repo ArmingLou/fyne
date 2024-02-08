@@ -114,6 +114,10 @@ func (w *window) SetCloseIntercept(callback func()) {
 	w.onCloseIntercepted = callback
 }
 
+func (w *window) SetOnResize(callback func(fyne.Size)) {
+	w.onResize = callback
+}
+
 func (w *window) calculatedScale() float32 {
 	return calculateScale(userScale(), fyne.CurrentDevice().SystemScaleForWindow(w), w.detectScale())
 }
@@ -305,8 +309,8 @@ func (w *window) processMoved(x, y int) {
 	go w.canvas.reloadScale()
 }
 
-func (w *window) processResized(width, height int) {
-	canvasSize := w.computeCanvasSize(width, height)
+func (w *window) processResized(width, height int) (canvasSize fyne.Size) {
+	canvasSize = w.computeCanvasSize(width, height)
 	if !w.fullScreen {
 		w.width = scale.ToScreenCoordinate(w.canvas, canvasSize.Width)
 		w.height = scale.ToScreenCoordinate(w.canvas, canvasSize.Height)
@@ -324,6 +328,7 @@ func (w *window) processResized(width, height int) {
 	}
 
 	w.platformResize(canvasSize)
+	return
 }
 
 func (w *window) processFrameSized(width, height int) {

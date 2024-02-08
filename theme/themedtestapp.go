@@ -94,7 +94,9 @@ func (t *themedApp) SetCloudProvider(fyne.CloudProvider) {
 func (t *themedApp) Scale() float32 {
 	return 1.0
 }
+func (s *themedApp) SetScale(scale float32) {
 
+}
 func (t *themedApp) ShowAnimations() bool {
 	return true
 }

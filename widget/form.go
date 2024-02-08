@@ -270,7 +270,7 @@ func (f *Form) setUpValidation(widget fyne.CanvasObject, i int) {
 	if w, ok := widget.(fyne.Validatable); ok {
 		f.Items[i].invalid = w.Validate() != nil
 		if e, ok := w.(*Entry); ok {
-			e.onFocusChanged = func(bool) {
+			e.OnFocusChanged = func(bool) {
 				updateValidation(e.validationError)
 			}
 			if e.Validator != nil && f.Items[i].invalid {

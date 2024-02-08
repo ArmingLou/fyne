@@ -17,6 +17,7 @@ type window struct {
 	visible            bool
 	onClosed           func()
 	onCloseIntercepted func()
+	onResize           func(fyne.Size)
 	isChild            bool
 
 	clipboard fyne.Clipboard
@@ -101,6 +102,10 @@ func (w *window) SetCloseIntercept(callback func()) {
 	w.onCloseIntercepted = callback
 }
 
+func (w *window) SetOnResize(callback func(fyne.Size)) {
+	w.onResize = callback
+}
+
 func (w *window) SetOnDropped(dropped func(fyne.Position, []fyne.URI)) {
 	// not implemented yet
 }
@@ -129,6 +134,9 @@ func (w *window) Show() {
 	if w.Content() != nil {
 		w.Content().Refresh()
 		w.Content().Show()
+	}
+	if w.onResize != nil {
+		w.onResize(w.canvas.size)
 	}
 }
 

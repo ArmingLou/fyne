@@ -97,6 +97,14 @@ func (s *settings) Scale() float32 {
 	}
 	return s.schema.Scale
 }
+func (s *settings) SetScale(scale float32) {
+	s.propertyLock.RLock()
+	defer s.propertyLock.RUnlock()
+	if scale < 0.0 {
+		scale = 1.0 // catching any really old data still using the `-1`  value for "auto" scale
+	}
+	s.schema.Scale = scale
+}
 
 func (s *settings) AddChangeListener(listener chan fyne.Settings) {
 	s.changeListeners.Store(listener, true) // the boolean is just a dummy value here.

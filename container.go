@@ -1,6 +1,8 @@
 package fyne
 
-import "sync"
+import (
+	"sync"
+)
 
 // Declare conformity to CanvasObject
 var _ CanvasObject = (*Container)(nil)
@@ -64,6 +66,43 @@ func (c *Container) Add(add CanvasObject) {
 	defer c.lock.Unlock()
 	c.Objects = append(c.Objects, add)
 	c.layout()
+	//c.resizeByChild()
+}
+
+func (c *Container) AddAt(i int, add CanvasObject) {
+	if add == nil {
+		return
+	}
+	if i > len(c.Objects) {
+		i = len(c.Objects)
+	}
+
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	added := make([]CanvasObject, len(c.Objects)+1)
+	copy(added, c.Objects[:i])
+	added[i] = add
+	copy(added[i+1:], c.Objects[i:])
+
+	c.Objects = added
+	c.layout()
+	//c.resizeByChild()
+}
+
+func (c *Container) IndexOf(o CanvasObject) int {
+	if o == nil {
+		return -1
+	}
+
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	for i := range c.Objects {
+		if c.Objects[i] == o {
+			return i
+		}
+	}
+	return -1
 }
 
 // AddObject adds another CanvasObject to the set this Container holds.
@@ -148,14 +187,49 @@ func (c *Container) Remove(rem CanvasObject) {
 		c.layout()
 		return
 	}
+	//c.resizeByChild()
+}
+
+func (c *Container) RemoveAt(i int) {
+	if len(c.Objects) <= i {
+		return
+	}
+
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	removed := make([]CanvasObject, len(c.Objects)-1)
+	copy(removed, c.Objects[:i])
+	copy(removed[i:], c.Objects[i+1:])
+
+	c.Objects = removed
+	c.layout()
+	//c.resizeByChild()
 }
 
 // RemoveAll updates the contents of this container to no longer include any objects.
 //
 // Since: 2.2
 func (c *Container) RemoveAll() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.Objects = nil
 	c.layout()
+	//c.resizeByChild()
+}
+
+func (c *Container) ResizeByChild() {
+
+	for i := range c.Objects {
+		if cc, ok := c.Objects[i].(*Container); ok {
+			cc.ResizeByChild()
+		}
+	}
+
+	if l, ok := c.Layout.(Layout2); ok {
+		s := l.Size(c.Objects) //-----
+		c.Resize(s)
+	}
 }
 
 // Resize sets a new size for the Container.
@@ -191,8 +265,13 @@ func (c *Container) layout() {
 	if c.Layout == nil {
 		return
 	}
-
+	//if l, ok := c.Layout.(Layout2); ok {
+	//	s := l.Size(c.Objects) //-----
+	//	fmt.Printf("xbox size:%+v min %+v\n", c.size, s)
+	//	c.size = s
+	//}
 	c.Layout.Layout(c.Objects, c.size)
+
 }
 
 // repaint instructs the containing canvas to redraw, even if nothing changed.

@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
-const defaultPlaceHolder string = "(Select one)"
+const defaultPlaceHolder string = ""
 
 // Select widget has a list of options, with the current one shown, and triggers an event func when clicked
 type Select struct {
@@ -28,6 +28,9 @@ type Select struct {
 	hovered bool
 	popUp   *PopUpMenu
 	tapAnim *fyne.Animation
+
+	OnTapped  func(*fyne.PointEvent) `json:"-"`
+	HighLight bool
 }
 
 var _ fyne.Widget = (*Select)(nil)
@@ -192,7 +195,7 @@ func (s *Select) SetSelectedIndex(index int) {
 }
 
 // Tapped is called when a pointer tapped event is captured and triggers any tap handler
-func (s *Select) Tapped(*fyne.PointEvent) {
+func (s *Select) Tapped(e *fyne.PointEvent) {
 	if s.Disabled() {
 		return
 	}
@@ -201,6 +204,10 @@ func (s *Select) Tapped(*fyne.PointEvent) {
 	s.Refresh()
 
 	s.showPopUp()
+
+	if s.OnTapped != nil {
+		s.OnTapped(e)
+	}
 }
 
 // TypedKey is called if a key event happens while this Select is focused.
@@ -328,6 +335,12 @@ func (s *selectRenderer) Refresh() {
 	s.updateIcon()
 	s.background.FillColor = s.bgColor()
 	s.background.CornerRadius = theme.InputRadiusSize()
+	if s.combo.HighLight {
+		s.background.StrokeWidth = 1
+		s.background.StrokeColor = theme.SuccessColor()
+	} else {
+		s.background.StrokeWidth = 0
+	}
 	s.combo.propertyLock.RUnlock()
 
 	s.Layout(s.combo.Size())

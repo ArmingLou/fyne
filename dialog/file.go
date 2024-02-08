@@ -124,6 +124,12 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 			name := f.fileName.(*widget.Entry).Text
 			location, _ := storage.Child(f.dir, name)
 
+			if f.file.filter != nil && !f.file.filter.Matches(location) {
+				ShowInformation("Cannot save",
+					"Wrong file suffix ,\ncheck the file name and try again", f.file.parent)
+				return
+			}
+
 			exists, _ := storage.Exists(location)
 
 			// check if a directory is selected
@@ -155,6 +161,7 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 						f.file.onClosedCallback(true)
 					}
 				}, f.file.parent)
+
 		} else if f.selected != nil {
 			callback := f.file.callback.(func(fyne.URIReadCloser, error))
 			f.win.Hide()

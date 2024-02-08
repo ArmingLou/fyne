@@ -8,4 +8,14 @@ type Layout interface {
 	// MinSize calculates the smallest size that will fit the listed
 	// CanvasObjects using this Layout algorithm.
 	MinSize(objects []CanvasObject) Size
+	//Size(objects []CanvasObject) Size
+}
+type Layout2 interface {
+	// Layout will manipulate the listed CanvasObjects Size and Position
+	// to fit within the specified size.
+	Layout([]CanvasObject, Size)
+	// MinSize calculates the smallest size that will fit the listed
+	// CanvasObjects using this Layout algorithm.
+	MinSize(objects []CanvasObject) Size
+	Size(objects []CanvasObject) Size
 }
