@@ -32,8 +32,10 @@ func AbsolutePositionForObject(object fyne.CanvasObject, trees []fyne.CanvasObje
 func FindObjectAtPositionMatching(mouse fyne.Position, matches func(object fyne.CanvasObject) bool, overlay fyne.CanvasObject, roots ...fyne.CanvasObject) (fyne.CanvasObject, fyne.Position, int) {
 	var found fyne.CanvasObject
 	var foundPos fyne.Position
+	var findContine bool = true
 
 	findFunc := func(walked fyne.CanvasObject, pos fyne.Position, clipPos fyne.Position, clipSize fyne.Size) bool {
+
 		if !walked.Visible() {
 			return false
 		}
@@ -55,9 +57,25 @@ func FindObjectAtPositionMatching(mouse fyne.Position, matches func(object fyne.
 		}
 
 		if matches(walked) {
-			found = walked
-			foundPos = fyne.NewPos(mouse.X-pos.X, mouse.Y-pos.Y)
+			if dis, ok := walked.(fyne.Disableable); ok {
+				if dis.Disabled() {
+					findContine = false
+					return true
+				}
+			}
+			if findContine {
+				found = walked
+				foundPos = fyne.NewPos(mouse.X-pos.X, mouse.Y-pos.Y)
+			}
+		} else {
+			if dis, ok := walked.(fyne.Disableable); ok {
+				if dis.Disabled() {
+					findContine = false
+					return true
+				}
+			}
 		}
+
 		return false
 	}
 
@@ -150,6 +168,7 @@ func walkObjectTree(
 	if requireVisible && !obj.Visible() {
 		return false
 	}
+
 	pos := obj.Position().Add(offset)
 
 	var children []fyne.CanvasObject
