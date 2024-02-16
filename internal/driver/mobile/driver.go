@@ -79,7 +79,7 @@ func (d *mobileDriver) AllWindows() []fyne.Window {
 	return d.windows
 }
 
-// currentWindow returns the most recently opened window - we can only show one at a time.
+// currentWindow returns the most recently opened Window - we can only show one at a time.
 func (d *mobileDriver) currentWindow() *window {
 	if len(d.windows) == 0 {
 		return nil
@@ -189,6 +189,14 @@ func (d *mobileDriver) Run() {
 
 					// make sure that we paint on the next frame
 					c.Content().Refresh()
+
+					for i := range d.windows {
+						if w, o := d.windows[i].(*window); o {
+							if w.onResize != nil {
+								w.onResize(fyne.NewSize(e.WidthPt, e.HeightPt))
+							}
+						}
+					}
 				case paint.Event:
 					d.handlePaint(e, current)
 				case touch.Event:
